@@ -1,12 +1,13 @@
 import axios from '../../utils/axios';
 import { useNavigate } from 'react-router-dom';
-export const login = (credentials,navigate) => async dispatch => {
+export const login = (credentials, navigate) => async dispatch => {
   try {
     const res = await axios.post('/auth/login', credentials);
     const token = res.data.token;
     localStorage.setItem('token', token);
     dispatch({ type: 'LOGIN_SUCCESS', payload: token });
-        navigate('/');
+        navigate('/dashboard');
+         window.location.reload()   
     
   } catch (err) {
     console.error(err);
