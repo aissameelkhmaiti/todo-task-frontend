@@ -5,7 +5,7 @@ window.Pusher = Pusher;
 
 const echo = new Echo({
   broadcaster: 'pusher',
-  key: 'votre-cle-pusher',
+  key: '260639481603fd2cb57b',
   cluster: 'eu',
   forceTLS: true,
   encrypted: true,

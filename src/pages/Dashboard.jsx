@@ -1,9 +1,24 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { Table, Button, Modal, Form, Input, Space, Popconfirm, message, Typography } from 'antd';
+import {
+  Table,
+  Button,
+  Modal,
+  Form,
+  Input,
+  Space,
+  Popconfirm,
+  message,
+  Typography,
+} from 'antd';
 import Navbar from '../components/Navbar';
 import axios from 'axios';
-import { fetchTasks, addTask, updateTask, deleteTask } from '../redux/action/taskAction';
+import {
+  fetchTasks,
+  addTask,
+  updateTask,
+  deleteTask,
+} from '../redux/action/taskAction';
 
 const { Title } = Typography;
 
@@ -23,37 +38,17 @@ const Dashboard = () => {
     loadTasks();
   }, []);
 
- const loadTasks = async () => {
-  setLoading(true);
-  try {
-    const { data } = await axios.get(API_URL, authConfig);
-    const taskList = data.data;
-
-    // Pour chaque tâche, faire une requête pour récupérer le nom du user
-    const tasksWithUserNames = await Promise.all(
-      taskList.map(async (task) => {
-        try {
-          const userResponse = await axios.get(`http://127.0.0.1:8000/api/user/${task.user_id}`, authConfig);
-          return {
-            ...task,
-            user_name: userResponse.data.name || 'Utilisateur inconnu',
-          };
-        } catch (err) {
-          return {
-            ...task,
-            user_name: 'Erreur utilisateur',
-          };
-        }
-      })
-    );
-
-    setTasks(tasksWithUserNames);
-  } catch (error) {
-    message.error("Erreur lors du chargement des tâches");
-  } finally {
-    setLoading(false);
-  }
-};
+  const loadTasks = async () => {
+    setLoading(true);
+    try {
+      const { data } = await axios.get(API_URL, authConfig);
+      setTasks(data.data);
+    } catch (error) {
+      message.error('Erreur lors du chargement des tâches');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const openModal = (task = null) => {
     setEditingTask(task);
@@ -97,24 +92,28 @@ const Dashboard = () => {
       key: 'description',
     },
     {
-      title: 'Utilisateur',
-      dataIndex: ['user', 'name'],
-      key: 'user',
-      render: (text, record) => record.user_name ? record.user_name : 'Inconnu',
+      title: 'Créé par',
+      dataIndex: 'user_name',
+      key: 'user_name',
+      render: (text) => text || 'Utilisateur inconnu',
     },
     {
       title: 'Actions',
       key: 'actions',
       render: (_, record) => (
         <Space>
-          <Button type="link" onClick={() => openModal(record)}>Modifier</Button>
+          <Button type="link" onClick={() => openModal(record)}>
+            Modifier
+          </Button>
           <Popconfirm
             title="Confirmer la suppression ?"
             onConfirm={() => confirmDelete(record.id)}
             okText="Oui"
             cancelText="Non"
           >
-            <Button type="link" danger>Supprimer</Button>
+            <Button type="link" danger>
+              Supprimer
+            </Button>
           </Popconfirm>
         </Space>
       ),
@@ -124,21 +123,32 @@ const Dashboard = () => {
   return (
     <>
       <Navbar />
-      <div className="container">
-        <div style={{ padding: '24px' }}>
-          <Title level={2}>Tableau de bord</Title>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="p-4 sm:p-6 lg:p-8">
+          <Title
+            level={2}
+            className="text-xl sm:text-2xl md:text-3xl font-semibold text-gray-800"
+          >
+            Tableau de bord
+          </Title>
 
-          <Button type="primary" onClick={() => openModal()} style={{ marginBottom: 16 }}>
+          <Button
+            type="primary"
+            onClick={() => openModal()}
+            className="mb-4 !text-sm sm:!text-base"
+          >
             Ajouter une tâche
           </Button>
 
-          <Table
-            dataSource={tasks}
-            columns={columns}
-            loading={loading}
-            rowKey="id"
-            pagination={{ pageSize: 5 }}
-          />
+          <div className="overflow-x-auto">
+            <Table
+              dataSource={tasks}
+              columns={columns}
+              loading={loading}
+              rowKey="id"
+              pagination={{ pageSize: 5 }}
+            />
+          </div>
 
           <Modal
             title={editingTask ? 'Modifier une tâche' : 'Ajouter une tâche'}
@@ -159,13 +169,15 @@ const Dashboard = () => {
               <Form.Item
                 name="description"
                 label="Description"
-                rules={[{ required: true, message: 'Veuillez saisir une description' }]}
+                rules={[
+                  { required: true, message: 'Veuillez saisir une description' },
+                ]}
               >
                 <Input.TextArea rows={4} placeholder="Entrez la description" />
               </Form.Item>
 
               <Form.Item>
-                <Space style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                <Space className="w-full justify-end flex">
                   <Button onClick={closeModal}>Annuler</Button>
                   <Button type="primary" htmlType="submit">
                     {editingTask ? 'Mettre à jour' : 'Ajouter'}

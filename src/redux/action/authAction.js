@@ -7,7 +7,6 @@ export const login = (credentials, navigate) => async dispatch => {
     localStorage.setItem('token', token);
     dispatch({ type: 'LOGIN_SUCCESS', payload: token });
         navigate('/dashboard');
-         window.location.reload()   
     
   } catch (err) {
     console.error(err);

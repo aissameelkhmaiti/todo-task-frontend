@@ -6,17 +6,26 @@ import Dashboard from './pages/Dashboard';
 import Notifications from './pages/Notifications';
 import NotFound from './pages/NotFound';
 
-const App = () => {
-  const isAuthenticated = !!localStorage.getItem("token");
-  console.log(isAuthenticated)
+// Fonction utilitaire pour vérifier l'authentification
+const isAuthenticated = () => !!localStorage.getItem("token");
 
+// Composant pour protéger les routes privées
+const PrivateRoute = ({ children }) => {
+  return isAuthenticated() ? children : <Navigate to="/login" />;
+};
+
+// Composant principal
+const App = () => {
   return (
     <Routes>
-      <Route path="/" element={isAuthenticated ? <Navigate to="/dashboard" /> : <Navigate to="/login" />} />
+      <Route path="/" element={<Navigate to={isAuthenticated() ? "/dashboard" : "/login"} />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
-      <Route path="/dashboard" element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" />} />
-      <Route path="/notifications" element={isAuthenticated ? <Notifications /> : <Navigate to="/login" />} />
+      
+      {/* Routes protégées */}
+      <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+      <Route path="/notifications" element={<PrivateRoute><Notifications /></PrivateRoute>} />
+      
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
