@@ -38,17 +38,32 @@ const Dashboard = () => {
     loadTasks();
   }, []);
 
-  const loadTasks = async () => {
-    setLoading(true);
-    try {
-      const { data } = await axios.get(API_URL, authConfig);
-      setTasks(data.data);
-    } catch (error) {
-      message.error('Erreur lors du chargement des tâches');
-    } finally {
-      setLoading(false);
-    }
-  };
+const USER_API_URL = 'http://127.0.0.1:8000/api/user';
+
+const loadTasks = async () => {
+  setLoading(true);
+  try {
+    const { data } = await axios.get(API_URL, authConfig);
+    const tasksWithUserName = await Promise.all(
+      data.data.map(async (task) => {
+        if (task.user_id) {
+          try {
+            const userRes = await axios.get(`${USER_API_URL}/${task.user_id}`, authConfig);
+            return { ...task, user_name: userRes.data.name || 'Utilisateur inconnu' };
+          } catch (err) {
+            return { ...task, user_name: 'Utilisateur inconnu' };
+          }
+        }
+        return { ...task, user_name: 'Utilisateur inconnu' };
+      })
+    );
+    setTasks(tasksWithUserName);
+  } catch (error) {
+    message.error('Erreur lors du chargement des tâches');
+  } finally {
+    setLoading(false);
+  }
+};
 
   const openModal = (task = null) => {
     setEditingTask(task);
